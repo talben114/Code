@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מזג האוויר בירושלים | Jerusalem Weather</title>
+    <style>
+        /* עיצוב כללי ורקע מדורג */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* אפקט זכוכית (Glassmorphism) */
+        .weather-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 40px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        /* כותרות */
+        h1 { margin: 0; font-size: 2.5rem; letter-spacing: 2px; }
+        p { font-size: 1.1rem; opacity: 0.8; }
+
+        /* טמפרטורה גדולה */
+        .temp-container {
+            margin: 30px 0;
+            font-size: 5rem;
+            font-weight: bold;
+            text-shadow: 2px 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* אייקון מזג אוויר */
+        .weather-icon {
+            width: 100px;
+            filter: drop-shadow(0 0 10px white);
+        }
+
+        /* פרטים נוספים (לחות, רוח) */
+        .details {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 20px;
+        }
+
+        .detail-item span { display: block; font-size: 0.9rem; opacity: 0.7; }
+        .detail-item strong { font-size: 1.2rem; }
+
+        /* אנימציה של עננים ברקע */
+        .cloud {
+            position: absolute;
+            background: white;
+            width: 200px;
+            height: 60px;
+            border-radius: 50px;
+            opacity: 0.2;
+            animation: moveClouds 20s linear infinite;
+        }
+
+        @keyframes moveClouds {
+            from { left: -250px; }
+            to { left: 100%; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cloud" style="top: 10%; animation-duration: 25s;"></div>
+    <div class="cloud" style="top: 30%; animation-duration: 15s; width: 150px;"></div>
+    <div class="cloud" style="top: 70%; animation-duration: 35s;"></div>
+
+    <div class="weather-card">
+        <h1>ירושלים</h1>
+        <p id="date">טוען נתונים...</p>
+        
+        <img id="w-icon" src="https://openweathermap.org/img/wn/01d@2x.png" alt="icon" class="weather-icon">
+        
+        <div class="temp-container">
+            <span id="temp">--</span>°
+        </div>
+        
+        <div id="description" style="text-transform: capitalize; margin-bottom: 10px;">בהיר</div>
+
+        <div class="details">
+            <div class="detail-item">
+                <span>לחות</span>
+                <strong id="humidity">--%</strong>
+            </div>
+            <div class="detail-item">
+                <span>רוח</span>
+                <strong id="wind">-- קמ"ש</strong>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // פונקציה למשיכת נתונים אמיתיים
+        async function getJerusalemWeather() {
+            const apiKey = 'b736b70a7d519b5c3e02027b4093952c'; // מפתח דוגמה (מומלץ להחליף לשלך)
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=Jerusalem&units=metric&lang=he&appid=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                document.getElementById('temp').innerText = Math.round(data.main.temp);
+                document.getElementById('description').innerText = data.weather[0].description;
+                document.getElementById('humidity').innerText = data.main.humidity + '%';
+                document.getElementById('wind').innerText = data.wind.speed + ' קמ"ש';
+                document.getElementById('date').innerText = new Date().toLocaleDateString('he-IL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+                
+                // עדכון אייקון
+                const iconCode = data.weather[0].icon;
+                document.getElementById('w-icon').src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+
+            } catch (error) {
+                console.error("שגיאה בטעינת הנתונים", error);
+                document.getElementById('description').innerText = "שגיאה בטעינה";
+            }
+        }
+
+        getJerusalemWeather();
+    </script>
+</body>
+</html>
